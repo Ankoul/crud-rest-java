@@ -1,0 +1,83 @@
+Index: src/main/java/br/net/intuitiva/rainboard/api/persistence/dao/UserDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/br/net/intuitiva/rainboard/api/persistence/dao/UserDao.java	(date 1534992024000)
++++ src/main/java/br/net/intuitiva/rainboard/api/persistence/dao/UserDao.java	(date 1535076351861)
+@@ -119,4 +119,14 @@
+         return whereBuilder;
+     }
+ 
++    public List<UserEntity> listByCompanyDepartment(String companyId, Long departmentId) {
++        EntityManager entityManager = this.entityManager;
++        final Query query = entityManager.createQuery(
++                "SELECT distinct user from UserEntity user " +
++                        "inner join user.company company on company.id = :companyId " +
++                        "inner join user.department department on department.id = :departmentId ");
++        query.setParameter("departmentId", departmentId);
++        query.setParameter("companyId", companyId);
++        return query.getResultList();
++    }
+ }
+Index: src/main/java/br/net/intuitiva/rainboard/api/service/UserService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/br/net/intuitiva/rainboard/api/service/UserService.java	(date 1534992024000)
++++ src/main/java/br/net/intuitiva/rainboard/api/service/UserService.java	(date 1535076525615)
+@@ -154,6 +154,9 @@
+     public List<String> listLoginEmailsByCompanyGroup(String companyId, BigInteger groupId) {
+         return this.userDao.listLoginEmailsByCompanyGroup(companyId, groupId);
+     }
++    public List<UserEntity> listByCompanyGroup(String companyId, Long groupId) {
++        return this.userDao.listByCompanyDepartment(companyId, groupId);
++    }
+ 
+     public CompanyAccountStatusEntity updateCompanyAccountStatus() {
+ 
+Index: src/main/resources/META-INF/orm.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/resources/META-INF/orm.xml	(date 1534992024000)
++++ src/main/resources/META-INF/orm.xml	(date 1535075807044)
+@@ -11,6 +11,12 @@
+         </constructor-result>
+     </sql-result-set-mapping>
+ 
++    <sql-result-set-mapping name="UserGroupResult">
++        <constructor-result target-class="br.net.intuitiva.rainboard.api.model.bean.User">
++            <column name="firstName"/>
++        </constructor-result>
++    </sql-result-set-mapping>
++
+     <sql-result-set-mapping name="UserFirstLastNameResult">
+         <constructor-result target-class="br.net.intuitiva.rainboard.api.model.bean.User">
+             <column name="firstName"/>
+Index: src/main/java/br/net/intuitiva/rainboard/api/service/GroupService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/br/net/intuitiva/rainboard/api/service/GroupService.java	(date 1534992024000)
++++ src/main/java/br/net/intuitiva/rainboard/api/service/GroupService.java	(date 1535075325515)
+@@ -1,6 +1,7 @@
+ package br.net.intuitiva.rainboard.api.service;
+ 
+ 
++import br.net.intuitiva.rainboard.api.model.bean.User;
+ import br.net.intuitiva.rainboard.api.model.entity.CompanyRainbowEntity;
+ import br.net.intuitiva.rainboard.api.model.entity.GroupEntity;
+ import br.net.intuitiva.rainboard.api.model.factory.GroupFactory;
+@@ -55,7 +56,7 @@
+ 
+     private Integer countUsersByCompany(GroupEntity group, String companyId) {
+         final Integer count = this.dao.countUsersByCompany(group.getId(), companyId);
+-        final List<String> usersIds = this.userService.listLoginEmailsByCompanyGroup(companyId,group.getId());
++        final List<User> usersIds = this.userService.listByCompanyGroup(companyId,group.getId());
+         return countUsers(group, companyId, count, usersIds);
+     }
+ 
