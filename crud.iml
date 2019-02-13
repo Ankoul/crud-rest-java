@@ -7,6 +7,9 @@
           <file>file://$MODULE_DIR$/src/main/java/br/net/intuitiva/rainboard/api/Application.java</file>
           <file>file://$MODULE_DIR$/src/main/java/br/net/intuitiva/rainboard/api/security/WebSecurityConfig.java</file>
         </fileset>
+        <fileset id="fileset2" name="Spring Application Context" removed="false">
+          <file>file://$MODULE_DIR$/src/main/java/br/net/intuitiva/crud/api/Application.java</file>
+        </fileset>
       </configuration>
     </facet>
     <facet type="web" name="Web">
