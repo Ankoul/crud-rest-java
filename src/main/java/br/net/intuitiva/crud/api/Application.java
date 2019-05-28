@@ -16,9 +16,12 @@ public class Application {
 	@Value("${project.version}")
 	private String version;
 
+	@Value("${project.artifactId}")
+	private String artifactId;
+
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String getVersion() {
-		return version;
+		return artifactId + " v" + version;
 	}
 
 	public static void main(String[] args) {
